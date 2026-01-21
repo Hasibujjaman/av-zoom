@@ -9,4 +9,7 @@ venv/
 .DS_Store
 **/.DS_Store
 .vscode/
+Pre_MVDR_Dataset/
+Post_MVDR_Dataset/
+BATCH_PROCESS_README.md
 
