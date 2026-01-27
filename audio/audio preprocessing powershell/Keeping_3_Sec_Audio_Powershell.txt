@@ -1,0 +1,44 @@
+1. For Flac:
+$MinDuration = 3.0   # seconds
+
+Get-ChildItem -Filter *.flac | ForEach-Object {
+    $file = $_.FullName
+
+    $duration = ffprobe -v error -show_entries format=duration `
+        -of default=noprint_wrappers=1:nokey=1 "$file"
+
+    $duration = [double]$duration
+
+    if ($duration -lt $MinDuration) {
+        Write-Host "Deleting: $($_.Name) ($("{0:N2}" -f $duration) sec)"
+        Remove-Item "$file"
+    }
+    else {
+        Write-Host "Keeping:  $($_.Name) ($("{0:N2}" -f $duration) sec)"
+    }
+}
+
+Write-Host "`nDone"
+
+
+2. For Wav:
+$MinDuration = 3.0   # seconds
+
+Get-ChildItem -Filter *.wav | ForEach-Object {
+    $file = $_.FullName
+
+    $duration = ffprobe -v error -show_entries format=duration `
+        -of default=noprint_wrappers=1:nokey=1 "$file"
+
+    $duration = [double]$duration
+
+    if ($duration -lt $MinDuration) {
+        Write-Host "Deleting: $($_.Name) ($("{0:N2}" -f $duration) sec)"
+        Remove-Item "$file"
+    }
+    else {
+        Write-Host "Keeping:  $($_.Name) ($("{0:N2}" -f $duration) sec)"
+    }
+}
+
+Write-Host "`nDone"

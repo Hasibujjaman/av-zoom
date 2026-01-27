@@ -1,0 +1,61 @@
+Create a directory first: mkdir chunks_3s
+
+1. For Flac:
+$Chunk = 3    # seconds
+$outDir = "chunks_3s"
+
+Get-ChildItem -Filter *.flac | ForEach-Object {
+
+    $input = $_.FullName
+    $name  = $_.BaseName
+
+    # Get total duration
+    $duration = ffprobe -v error -show_entries format=duration `
+        -of default=noprint_wrappers=1:nokey=1 "$input"
+
+    $duration = [math]::Floor([double]$duration)
+
+    $maxChunks = [math]::Floor($duration / $Chunk)
+
+    for ($i = 0; $i -lt $maxChunks; $i++) {
+        $start = $i * $Chunk
+        $outFile = Join-Path $outDir "$name`_part$($i+1).flac"
+
+        ffmpeg -v error -y -i "$input" -ss $start -t $Chunk "$outFile"
+
+        Write-Host "Created: $outFile"
+    }
+}
+
+Write-Host "`nAll files processed"
+
+
+2. For Wav:
+$Chunk = 3    # seconds
+$outDir = "chunks_3s"
+
+Get-ChildItem -Filter *.wav | ForEach-Object {
+
+    $input = $_.FullName
+    $name  = $_.BaseName
+
+    # Get total duration
+    $duration = ffprobe -v error -show_entries format=duration `
+        -of default=noprint_wrappers=1:nokey=1 "$input"
+
+    $duration = [math]::Floor([double]$duration)
+
+    $maxChunks = [math]::Floor($duration / $Chunk)
+
+    for ($i = 0; $i -lt $maxChunks; $i++) {
+        $start = $i * $Chunk
+        $outFile = Join-Path $outDir "$name`_part$($i+1).flac"
+
+        ffmpeg -v error -y -i "$input" -ss $start -t $Chunk "$outFile"
+
+        Write-Host "Created: $outFile"
+    }
+}
+
+Write-Host "`nAll files processed"
+

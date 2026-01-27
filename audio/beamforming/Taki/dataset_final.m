@@ -1,0 +1,176 @@
+clear; clc;
+
+%% =================== GLOBAL SETTINGS ===================
+fs = 16000;
+c  = 340;                                % speed of sound (m/s)
+
+% ---- Microphone geometry (8 cm spacing, centered) ----
+d = 0.08;                               % 8 cm
+mic_pos = [-d/2; d/2];                 % 2-mic linear array (x-axis)
+
+snr_list = [-5 0 10];
+NUM_SAMPLES = 5;                       % production-safe (demo size)
+
+out_dir = "dataset_chunks";
+if ~exist(out_dir, 'dir')
+    mkdir(out_dir);
+end
+
+global_idx = 1;
+
+%% =================== DATA GENERATION ===================
+for i = 1:NUM_SAMPLES
+
+    %% ---------- Load clean speech ----------
+    [clean, fs0] = audioread('target_signal.wav');
+    clean = mean(clean,2);
+    clean = resample(clean, fs, fs0);
+    clean = clean - mean(clean);
+
+    %% ---------- Load noises ----------
+    [n1, fs1] = audioread('interference_signal1.wav');
+    n1 = resample(mean(n1,2), fs, fs1);
+    n1 = n1 - mean(n1);
+
+    % ---- OPTIONAL ADDITIONAL NOISES ----
+    [n2, fs2] = audioread('19-227-0002.flac');
+    n2 = resample(mean(n2,2), fs, fs2);
+    n2 = n2 - mean(n2);
+
+    [n3, fs3] = audioread('music-hd-0000.wav');
+    n3 = resample(mean(n3,2), fs, fs3);
+    n3 = n3 - mean(n3);
+
+    %% =====================================================
+    % LENGTH MATCH (ONLY ADDITION)
+    %% =====================================================
+    min_len_noise = min([length(n1), length(n2), length(n3)]);
+    n1 = n1(1:min_len_noise);
+    n2 = n2(1:min_len_noise);
+    n3 = n3(1:min_len_noise);
+
+    %% =====================================================
+    % SELECT NOISE CONFIGURATION
+    %% =====================================================
+    % noise = n1;              % 1 noise
+    % noise = n1 + n2;         % 2 noises
+    noise = n1 + n2 + n3;      % 3 noises
+
+    %% =====================================================
+    % DOA SELECTION (COMPETITION-AWARE)
+    %% =====================================================
+    if i <= 4
+        snr_db = 5;                                 % competition SNR
+    else
+        snr_db = snr_list(randi(numel(snr_list))); % generalization
+    end
+
+    if i <= 3
+        theta_speech = 0;                        % front
+        theta_noise  = 40 * sign(randn);         % +40° or -40°
+    else
+        theta_speech = -90 + 180*rand;
+        theta_noise  = theta_speech + 30 + 60*rand;
+        theta_noise  = max(min(theta_noise, 90), -90);
+    end
+
+    %% =====================================================
+    % 🔊 ADD WHITE GAUSSIAN NOISE (MONO SOURCE)
+    %% =====================================================
+    awgn_noise = randn(size(noise));
+    awgn_noise = awgn_noise / rms(awgn_noise);
+    awgn_noise = awgn_noise * rms(clean) / (10^(snr_db/20));
+
+    % ---- Combine interference + AWGN ----
+    noise = noise + awgn_noise;
+
+    %% =====================================================
+    % 1️⃣ MONO MIXING (uses YOUR function)
+    %% =====================================================
+    noisy_mono = mix_clean_and_noise(clean, noise, snr_db);
+
+    %% =====================================================
+    % 2️⃣ SIMULATE MULTICHANNEL SPEECH & NOISE
+    %% =====================================================
+    X_speech = simulate_multichannel(clean, fs, mic_pos, theta_speech);
+    X_noise  = simulate_multichannel(noise, fs, mic_pos, theta_noise);
+
+    % ---- Match lengths ----
+    min_len = min(size(X_speech,1), size(X_noise,1));
+    X_speech = X_speech(1:min_len,:);
+    X_noise  = X_noise(1:min_len,:);
+    clean    = clean(1:min_len);
+
+    %% =====================================================
+    % 3️⃣ SCALE NOISE TO TARGET SNR (MULTICHANNEL, SIR=0 dB)
+    %% =====================================================
+    X_speech = X_speech / rms(X_speech(:));
+    X_noise  = X_noise  / rms(X_noise(:));
+    X_noise  = X_noise / (10^(snr_db/20));
+
+    %% =====================================================
+    % 4️⃣ MULTICHANNEL MIX
+    %% =====================================================
+    X = X_speech + X_noise;
+    noisy = X(:,1);   % mic-1 reference
+
+    %% =====================================================
+    % 5️⃣ MVDR BEAMFORMING
+    %% =====================================================
+    Y_mvdr = mvdr_beamformer(X, fs, theta_speech, mic_pos);
+
+    %% ---------- ISTFT ----------
+    [~, params] = compute_stft(clean, fs);
+    mvdr_time = compute_istft(Y_mvdr, params);
+
+    mvdr_time = mvdr_time / (rms(mvdr_time)+1e-6) * rms(clean);
+
+    %% =====================================================
+    % 6️⃣ SPECTROGRAM VISUALIZATION
+    %% =====================================================
+    figure('Name', sprintf('Sample %04d | SNR=%d dB | DOA=%d/%d°', ...
+           global_idx, snr_db, round(theta_speech), round(theta_noise)), ...
+           'Position', [100 100 900 700]);
+
+    subplot(3,1,1)
+    spectrogram(clean, 320, 160, 512, fs, 'yaxis')
+    title('Clean Speech'); ylim([0 4]); colorbar
+
+    subplot(3,1,2)
+    spectrogram(noisy, 320, 160, 512, fs, 'yaxis')
+    title(sprintf('Noisy Speech (Mic-1, %d dB)', snr_db))
+    ylim([0 4]); colorbar
+
+    subplot(3,1,3)
+    spectrogram(mvdr_time, 320, 160, 512, fs, 'yaxis')
+    title('MVDR Output'); ylim([0 4]); colorbar
+
+    %% =====================================================
+    % 7️⃣ SAVE AUDIO (WITH DOA IN NAME)
+    %% =====================================================
+    doa_tag = sprintf('%d_%d', round(theta_speech), round(theta_noise));
+
+    audiowrite(sprintf('%s/noisy_%04d_%s.wav', ...
+        out_dir, global_idx, doa_tag), noisy, fs);
+
+    audiowrite(sprintf('%s/mvdr_%04d_%s.wav', ...
+        out_dir, global_idx, doa_tag), mvdr_time, fs);
+
+    %% =====================================================
+    % 8️⃣ FEATURE EXTRACTION (FRAME-LEVEL)
+    %% =====================================================
+    [mvdr_stft, ~]  = compute_stft(mvdr_time, fs);
+    [clean_stft, ~] = compute_stft(clean, fs);
+
+    mvdr_mag  = abs(mvdr_stft);
+    clean_mag = abs(clean_stft);
+
+    save(sprintf('%s/sample_%04d_%s.mat', ...
+         out_dir, global_idx, doa_tag), ...
+         'mvdr_mag', 'clean_mag', '-v7.3');
+
+    fprintf('Sample %d | SNR=%d dB | Speech DOA=%d° | Noise DOA=%d°\n', ...
+            global_idx, snr_db, round(theta_speech), round(theta_noise));
+
+    global_idx = global_idx + 1;
+end

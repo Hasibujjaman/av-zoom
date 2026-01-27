@@ -1,0 +1,4 @@
+$i = 1; Get-ChildItem -Filter *.flac | Sort-Object Name | ForEach-Object { Rename-Item $_ -NewName "$i.flac"; $i++ }
+
+
+$i = 1; Get-ChildItem -Filter *.wav | Sort-Object Name | ForEach-Object { Rename-Item $_ -NewName "$i.wav"; $i++ }
