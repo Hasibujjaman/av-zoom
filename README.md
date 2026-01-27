@@ -8,3 +8,6 @@ git commit -m "first commit"
 git branch -M main
 git remote add origin git@github.com:Hasibujjaman/av-zoom.git
 git push -u origin main
+
+# Create a new branch and switching to it
+git checkout -b Branch_Name
