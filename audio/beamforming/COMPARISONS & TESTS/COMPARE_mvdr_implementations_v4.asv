@@ -13,7 +13,7 @@ theta_noise  = 40;
 
 theta_target_test = 0;  
 
-SNR_dB       = 5;  %5 dB
+SNR_dB       = Inf;  %5 dB
 
 c = 340;
 d = 0.08; % 8 cm
@@ -131,7 +131,7 @@ y_mvdr_matlab = y_mvdr_matlab(1:L);
 
 
 %% ================= ML Post Enchancement =================
-[y_model, ~] = audioread("/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/models/DTLN-master/test_output/COMPARE_V4_mvdr_emon_output.wav");
+[y_model, ~] = audioread("/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/models/custom_model_1/model_enhanced_output/v1/COMPARE_V4_mvdr_emon_output_enhanced.wav");
 
 % Energy match to MVDR output
 y_model = y_model / rms(y_model) * rms(x_mono);
@@ -219,13 +219,13 @@ fprintf('Yours:   %.3f\n', stoi_yours);
 fprintf('Taki:    %.3f\n', stoi_taki);
 fprintf('MATLAB:  %.3f\n', stoi_matlab);
 fprintf('Model:  %.3f\n', stoi_model);
-% 
-% fprintf('\nOSINR (dB):\n');
-% fprintf('Mic:     %.2f\n', osinr_mic);
-% fprintf('Yours:   %.2f\n', osinr_yours);
-% fprintf('Taki:    %.2f\n', osinr_taki);
-% fprintf('MATLAB:  %.2f\n', osinr_matlab);
-% fprintf('Model:  %.2f\n', osinr_model);
+
+fprintf('\nOSINR (dB):\n');
+fprintf('Mic:     %.2f\n', osinr_mic);
+fprintf('Yours:   %.2f\n', osinr_yours);
+fprintf('Taki:    %.2f\n', osinr_taki);
+fprintf('MATLAB:  %.2f\n', osinr_matlab);
+fprintf('Model:  %.2f\n', osinr_model);
 
 fprintf('\nViSQOL (MOS -->[1,5], (NSIM) --> [-1,1]):\n');
 fprintf('Mic:     MOS = %.2f, NSIM = %.2f\n', visqol_mic(1),visqol_mic(2));
