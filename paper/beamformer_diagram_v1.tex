@@ -1,0 +1,170 @@
+% ============================================================================
+%  Standalone Beamformer Architecture Diagram — VERSION 1
+%  Darkened text colors (same color scheme, stronger contrast)
+% ============================================================================
+\documentclass[border=12pt]{standalone}
+\usepackage{amsmath,amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,decorations.pathreplacing,fit,backgrounds}
+
+\begin{document}
+\begin{tikzpicture}[
+    >=Stealth,
+    node distance=1.2cm and 1.0cm,
+    block/.style={draw, rounded corners=3pt, minimum height=1.1cm,
+                  minimum width=2.0cm, align=center, font=\small,
+                  fill=#1, text=black, line width=0.6pt},
+    block/.default=white,
+    io/.style={draw, rounded corners=3pt, minimum height=1.0cm,
+               minimum width=1.6cm, align=center, font=\small\itshape,
+               fill=gray!12, text=black, line width=0.6pt},
+    arr/.style={->, thick, line width=0.7pt},
+    darr/.style={->, thick, dashed, gray!50, line width=0.7pt},
+    lbl/.style={font=\footnotesize, midway, text=black},
+    stagelbl/.style={font=\small\bfseries, text=black!70},
+    annot/.style={font=\scriptsize, text=black!70},
+  ]
+
+  % ===== MICROPHONES =====
+  \node[io] (mic1) {Mic\,1\\ \scriptsize $x_1(t)$};
+  \node[io, below=1.4cm of mic1] (mic2) {Mic\,2\\ \scriptsize $x_2(t)$};
+
+  % ULA brace
+  \draw[decorate, decoration={brace, amplitude=6pt, mirror},
+        thick, gray!50]
+    ([xshift=-5pt]mic1.north west) -- ([xshift=-5pt]mic2.south west)
+    node[midway, left=8pt, rotate=90, anchor=south,
+         font=\small\bfseries, text=black!70] {2-mic ULA\; ($d\!=\!8$\,cm)};
+
+  % ===== STFT =====
+  \node[block=blue!12, right=1.4cm of mic1, minimum width=1.6cm] (stft1)
+       {STFT};
+  \node[block=blue!12, right=1.4cm of mic2, minimum width=1.6cm] (stft2)
+       {STFT};
+
+  \draw[arr] (mic1) -- (stft1);
+  \draw[arr] (mic2) -- (stft2);
+
+  % STFT annotation
+  \node[annot, above=3pt of stft1]
+       {$N_\text{FFT}\!=\!512,\; \text{hop}\!=\!128$};
+  \node[annot, right=2pt of stft1.south east, anchor=south west]
+       {$X_1(k,n)$};
+  \node[annot, right=2pt of stft2.north east, anchor=north west]
+       {$X_2(k,n)$};
+
+  % ===== COVARIANCE ESTIMATION =====
+  \node[block=orange!15, right=1.8cm of $(stft1.east)!0.5!(stft2.east)$,
+        minimum width=2.4cm, minimum height=1.2cm] (cov)
+       {$\hat{\mathbf{R}}_{xx}(k) = \frac{1}{N_f}\!\sum\limits_n
+         \mathbf{x}_k\mathbf{x}_k^H$\\[3pt]
+        {\scriptsize Batch Covariance}};
+
+  % Lines from STFT to Cov
+  \draw[arr] (stft1.east) -- ++(0.5,0) |- ([yshift=3pt]cov.west);
+  \draw[arr] (stft2.east) -- ++(0.5,0) |- ([yshift=-3pt]cov.west);
+
+  % ===== STEERING VECTOR =====
+  \node[block=green!15, below=1.6cm of cov,
+        minimum width=2.4cm, minimum height=1.2cm] (steer)
+       {$\mathbf{d}(\theta_s,k) = \begin{bmatrix}1\\
+         e^{-j\omega_k\frac{d\cos\theta_s}{c}}\end{bmatrix}$\\[3pt]
+        {\scriptsize Steering Vector}};
+
+  % Angle annotation
+  \node[annot, below=3pt of steer]
+       {$\theta_s\!=\!90^\circ$ (broadside)};
+
+  % ===== DIAGONAL LOADING =====
+  \node[block=orange!15, right=1.6cm of cov,
+        minimum width=2.4cm, minimum height=1.2cm] (diag)
+       {$\tilde{\mathbf{R}} = \hat{\mathbf{R}}
+         + \delta\,\frac{\mathrm{tr}(\hat{\mathbf{R}})}{M}\,\mathbf{I}$\\[3pt]
+        {\scriptsize Diagonal Loading}};
+
+  \draw[arr] (cov) -- node[lbl, above] {} (diag);
+  \node[annot, above=3pt of diag] {$\delta=10^{-3},\; M\!=\!2$};
+
+  % ===== MVDR WEIGHTS =====
+  \node[block=red!12, right=1.6cm of diag,
+        minimum width=2.4cm, minimum height=1.2cm] (mvdr)
+       {$\mathbf{w}(k) =
+         \frac{\tilde{\mathbf{R}}^{-1}\mathbf{d}}
+              {\mathbf{d}^H\tilde{\mathbf{R}}^{-1}\mathbf{d}}$\\[3pt]
+        {\scriptsize MVDR Weights}};
+
+  \draw[arr] (diag) -- (mvdr);
+
+  % Steering vector to MVDR
+  \draw[arr, green!40!black]
+    (steer.east) -- ++(0.6,0) |- ([yshift=-3pt]mvdr.south) -- (mvdr.south);
+  \node[annot, text=green!30!black] at ($(steer.east)!0.5!(mvdr.south)+(0.4,-0.3)$)
+       {$\mathbf{d}(k)$};
+
+  % ===== BEAMFORM (apply weights) =====
+  \node[block=red!12, right=1.6cm of mvdr,
+        minimum width=2.2cm, minimum height=1.2cm] (apply)
+       {$Y(k,n)=\mathbf{w}^H\!\mathbf{x}_k$\\[3pt]
+        {\scriptsize Spatial Filter}};
+
+  \draw[arr] (mvdr) -- node[lbl, above] {$\mathbf{w}$} (apply);
+
+  % Feed STFT data to beamform (long path on top)
+  \coordinate (stftmid) at ($(stft1.east)!0.5!(stft2.east)$);
+  \draw[arr, blue!50!black, line width=0.6pt]
+    (stftmid) -- ++(0.5,0) coordinate (junc)
+    |- ([yshift=1.8cm]apply.north) -- (apply.north);
+  \node[annot, text=blue!40!black, above=1.85cm of apply]
+       {$\mathbf{X}_{k,n}\in\mathbb{C}^{M\times 1}$};
+
+  % ===== ZELINSKI POST-FILTER =====
+  \node[block=purple!12, right=1.8cm of apply,
+        minimum width=2.6cm, minimum height=1.2cm] (pf)
+       {$G(k,n) =
+         \frac{\hat{\Phi}_{x_1 x_2}(k,n)}
+              {\hat{\Phi}_{xx}(k,n)+\epsilon}$\\[3pt]
+        {\scriptsize Zelinski Wiener PF}};
+
+  \draw[arr] (apply) -- node[lbl, above] {$Y_{k,n}$} (pf);
+
+  % PF parameters annotation
+  \node[annot, below=3pt of pf]
+       {$\alpha\!=\!0.92,\;\; \beta\!=\!0.02$};
+
+  % Cross-PSD input from STFT (dashed, bottom path)
+  \draw[darr]
+    (junc) |- ([yshift=-3.2cm]pf.south) -- (pf.south);
+  \node[annot, text=black!60, below=3.3cm of pf, anchor=north]
+       {Cross/Auto PSD from $X_1,X_2$};
+
+  % ===== OUTPUT =====
+  \node[io, right=1.6cm of pf, minimum width=1.8cm] (out)
+       {$\tilde{Y}_{k,n}$\\[1pt]\scriptsize Enhanced};
+  \draw[arr] (pf) -- node[lbl, above] {$G \cdot Y$} (out);
+
+  % ===== STAGE LABELS (background regions) =====
+  \begin{scope}[on background layer]
+    % STFT stage
+    \node[draw=blue!30, fill=blue!4, rounded corners=6pt,
+          fit=(stft1)(stft2),
+          inner xsep=10pt, inner ysep=12pt] (stftbox) {};
+    \node[stagelbl, text=blue!70!black] at (stftbox.south)
+         {Analysis};
+
+    % MVDR stage
+    \node[draw=red!30, fill=red!4, rounded corners=6pt,
+          fit=(cov)(diag)(mvdr)(apply)(steer),
+          inner xsep=12pt, inner ysep=14pt] (mvdrbox) {};
+    \node[stagelbl, text=red!70!black] at (mvdrbox.north)
+         {MVDR Beamformer};
+
+    % Post-filter stage
+    \node[draw=purple!30, fill=purple!4, rounded corners=6pt,
+          fit=(pf),
+          inner xsep=14pt, inner ysep=14pt] (pfbox) {};
+    \node[stagelbl, text=purple!70!black] at (pfbox.north)
+         {Post-Filter};
+  \end{scope}
+
+\end{tikzpicture}
+\end{document}

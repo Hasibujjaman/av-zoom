@@ -1,0 +1,89 @@
+\begin{thebibliography}{10}
+
+\bibitem{allen1979ism}
+J.~B. Allen and D.~A. Berkley.
+\newblock ``Image Method for Efficiently Simulating Small-Room Acoustics''.
+\newblock {\em J.\ Acoust.\ Soc.\ Am.}, 65(4):943--950, 1979.
+
+\bibitem{capon1969mvdr}
+J.~Capon.
+\newblock ``High-Resolution Frequency-Wavenumber Spectrum Analysis''.
+\newblock {\em Proceedings of the IEEE}, 57(8):1408--1418, 1969.
+
+\bibitem{chinen2020visqol}
+M.~Chinen, F.~S. Lim, J.~Skoglund, N.~Gureev, F.~O'Gorman and A.~Hines.
+\newblock ``{ViSQOL} v3: An Open Source Production Ready Objective Speech and
+  Audio Quality Metric''.
+\newblock {\em Quality and User Experience}, 5(1):13, 2020.
+
+\bibitem{erdogan2016improved}
+H.~Erdogan, J.~R. Hershey, S.~Watanabe and J.~Le~Roux.
+\newblock ``Improved {MVDR} Beamforming Using Single-Channel Mask Prediction
+  Networks''.
+\newblock {\em Proc.\ Interspeech}, pp.~1981--1985, 2016.
+
+\bibitem{heymann2016neural}
+J.~Heymann, L.~Drude and R.~Haeb-Umbach.
+\newblock ``Neural Network Based Spectral Mask Estimation for Acoustic
+  Beamforming''.
+\newblock {\em Proc.\ IEEE Int.\ Conf.\ Acoust., Speech, Signal Process.\
+  ({ICASSP})}, pp.~196--200, 2016.
+
+\bibitem{spcup2026}
+{IEEE Signal Processing Society}.
+\newblock ``{IEEE} Signal Processing Cup 2026: Audiovisual Zooming'', IEEE
+  Signal Processing Society, 2026.
+\newblock
+  \url{https://signalprocessingsociety.org/community-involvement/signal-processing-cup}.
+
+\bibitem{leroux2019sdr}
+J.~Le~Roux, S.~Wisdom, H.~Erdogan and J.~R. Hershey.
+\newblock ``{SDR} -- Half-baked or Well Done?''.
+\newblock {\em Proc.\ IEEE Int.\ Conf.\ Acoust., Speech, Signal Process.\
+  ({ICASSP})}, pp.~626--630, 2019.
+
+\bibitem{loshchilov2019adamw}
+I.~Loshchilov and F.~Hutter.
+\newblock ``Decoupled Weight Decay Regularization''.
+\newblock {\em Proc.\ Int.\ Conf.\ Learn.\ Representations ({ICLR})}, 2019.
+
+\bibitem{rix2001pesq}
+A.~W. Rix, J.~G. Beerends, M.~P. Hollier and A.~P. Hekstra.
+\newblock ``Perceptual Evaluation of Speech Quality ({PESQ}) --- An Objective
+  Method for End-to-End Speech Quality Assessment of Narrow-Band Telephone
+  Networks and Speech Codecs''.
+\newblock {\em Proc.\ IEEE Int.\ Conf.\ Acoust., Speech, Signal Process.\
+  ({ICASSP})}, pp.~749--752, 2001.
+
+\bibitem{schroeder2020deepfilternet}
+H.~Schr{\"o}ter, A.~N. Escalante-B., T.~Rosenkranz and A.~Maier.
+\newblock ``{DeepFilterNet}: Perceptually Motivated Real-Time Speech
+  Enhancement''.
+\newblock {\em Proc.\ Interspeech}, 2022.
+
+\bibitem{schroeder2023deepfilternet2}
+H.~Schr{\"o}ter, A.~N. Escalante-B., T.~Rosenkranz and A.~Maier.
+\newblock ``{DeepFilterNet2}: Towards Real-Time Speech Enhancement on Embedded
+  Devices for Full-Band Audio''.
+\newblock {\em Proc.\ ISCA Speech Synthesis Workshop}, 2023.
+
+\bibitem{simmer2001postfilter}
+K.~U. Simmer, J.~Bitzer and C.~Marro.
+\newblock ``Post-Filtering Techniques''.
+\newblock {\em Microphone Arrays}, pp.~39--60, 2001.
+
+\bibitem{taal2011stoi}
+C.~H. Taal, R.~C. Hendriks, R.~Heusdens and J.~Jensen.
+\newblock ``An Algorithm for Intelligibility Prediction of Time--Frequency
+  Weighted Noisy Speech''.
+\newblock {\em IEEE Trans.\ Audio, Speech, Lang.\ Process.}, 19(7):2125--2136,
+  2011.
+
+\bibitem{zelinski1988postfilter}
+R.~Zelinski.
+\newblock ``A Microphone Array with Adaptive Post-Filtering for Noise Reduction
+  in Reverberant Rooms''.
+\newblock {\em Proc.\ IEEE Int.\ Conf.\ Acoust., Speech, Signal Process.\
+  ({ICASSP})}, pp.~2578--2581, 1988.
+
+\end{thebibliography}

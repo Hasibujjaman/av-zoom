@@ -1,0 +1,92 @@
+% SPCONF.STY - ICASSP/ICIP Conference Style
+% For LaTeX 2e
+
+\@namedef{ver@spconf.sty}{}
+
+\newcommand{\ninept}{\def\@normalsize{\@setsize\normalsize{11pt}\ixpt\@ixpt
+\abovedisplayskip 4.5pt plus 2pt minus 2pt\belowdisplayskip \abovedisplayskip
+\abovedisplayshortskip \z@ plus 2pt\belowdisplayshortskip 2.5pt plus 2pt minus 2pt
+}
+\def\small{\@setsize\small{10pt}\viiipt\@viiipt}\def\footnotesize{\@setsize
+\footnotesize{9pt}\viipt\@viipt}\def\scriptsize{\@setsize\scriptsize{8pt}\vipt
+\@vipt}\def\tiny{\@setsize\tiny{7pt}\vpt\@vpt}\def\large{\@setsize\large{12pt}
+\xpt\@xpt}\def\Large{\@setsize\Large{14pt}\xiipt\@xiipt}\def\LARGE{\@setsize
+\LARGE{16pt}\xivpt\@xivpt}\def\huge{\@setsize\huge{20pt}\xviipt\@xviipt}\def
+\Huge{\@setsize\Huge{23pt}\xxpt\@xxpt}\normalsize}
+
+% Page layout
+\topmargin 0mm
+\oddsidemargin -6.5mm
+\textheight 229mm
+\textwidth 178mm
+\columnsep 6mm
+\parindent 1em
+
+% Title
+\def\maketitle{\par
+ \begingroup
+ \def\thefootnote{}
+ \def\@makefnmark{\hbox
+ to 0pt{$^{\@thefnmark}$\hss}}
+ \twocolumn[\@maketitle]
+\endgroup
+ \setcounter{footnote}{0}
+ \let\maketitle\relax
+ \let\@maketitle\relax}
+
+\def\@maketitle{\newpage
+ \null
+ \vskip 2em \begin{center}
+ {\large \bf \@title \par} \vskip 1.5em {\large \lineskip .5em
+\begin{tabular}[t]{c}\@name \\ \\
+ \@address
+ \end{tabular}\par}
+\end{center}
+ \par
+ \vskip 1.5em}
+
+\def\title#1{\gdef\@title{#1}}
+\def\name#1{\gdef\@name{#1}}
+\def\address#1{\gdef\@address{#1}}
+\gdef\@title{\uppercase{title of paper}}
+\gdef\@name{{\em Name of author}\\}
+\gdef\@address{Address - Line 1 \\
+               Address - Line 2 \\
+               Address - Line 3}
+
+% Headings
+\def\abstract{\begin{center}
+{\bf ABSTRACT\vspace{-.5em}\vspace{0pt}}
+\end{center}}
+\def\endabstract{\par}
+
+% Sections
+\setcounter{secnumdepth}{3}
+
+\def\section{\@startsection {section}{1}{\z@}{-2.0ex plus
+    -0.5ex minus -.2ex}{1.0ex plus 0.3ex minus .2ex}{\large\bf}}
+\def\subsection{\@startsection{subsection}{2}{\z@}{-1.8ex plus
+    -0.5ex minus -.2ex}{0.8ex plus .2ex}{\normalsize\bf}}
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}{-1.5ex plus
+   -0.5ex minus -.2ex}{0.5ex plus .2ex}{\normalsize\bf}}
+
+\def\thesection{\arabic{section}.}
+\def\thesubsection{\thesection\arabic{subsection}}
+\def\thesubsubsection{\thesubsection.\arabic{subsubsection}}
+
+% No page numbers
+\pagestyle{empty}
+
+% References
+\def\thebibliography#1{\section{References}\list
+ {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus .07em}
+ \sloppy\clubpenalty4000\widowpenalty4000
+ \sfcode`\.=1000\relax}
+\let\endthebibliography=\endlist
+
+% Footnotes
+\long\def\@makefntext#1{\parindent 1em\noindent
+                         $^{\@thefnmark}$#1}

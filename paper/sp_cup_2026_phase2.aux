@@ -1,0 +1,96 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{spcup2026}
+\@writefile{toc}{\contentsline {section}{\numberline {1.}Introduction}{1}{section.1}\protected@file@percent }
+\newlabel{sec:intro}{{1.}{1}{Introduction}{section.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2.}System Architecture}{1}{section.2}\protected@file@percent }
+\newlabel{sec:arch}{{2.}{1}{System Architecture}{section.2}{}}
+\newlabel{eq:signal_model}{{1}{1}{System Architecture}{equation.2.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3.}MVDR Beamforming with Zelinski Post-Filter}{1}{section.3}\protected@file@percent }
+\newlabel{sec:bf}{{3.}{1}{MVDR Beamforming with Zelinski Post-Filter}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Steering Vector}{1}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:steer}{{3.1}{1}{Steering Vector}{subsection.3.1}{}}
+\newlabel{eq:steering}{{2}{1}{Steering Vector}{equation.3.2}{}}
+\citation{capon1969mvdr}
+\citation{zelinski1988postfilter,simmer2001postfilter}
+\citation{schroeder2020deepfilternet,schroeder2023deepfilternet2}
+\citation{schroeder2020deepfilternet}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Beamformer architecture. Two-microphone STFT feeds are used to estimate the spatial covariance $\hat  {\mathbf  {R}}_{xx}(k)$ and compute MVDR weights $\mathbf  {w}(k)$ with diagonal loading. The steered beamformer output $Y_{k,n}$ is further refined by a Zelinski-style Wiener post-filter that exploits inter-channel coherence to suppress residual diffuse noise.}}{2}{figure.1}\protected@file@percent }
+\newlabel{fig:pipeline}{{1}{2}{Beamformer architecture. Two-microphone STFT feeds are used to estimate the spatial covariance $\hat {\mathbf {R}}_{xx}(k)$ and compute MVDR weights $\mathbf {w}(k)$ with diagonal loading. The steered beamformer output $Y_{k,n}$ is further refined by a Zelinski-style Wiener post-filter that exploits inter-channel coherence to suppress residual diffuse noise}{figure.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Spatial Covariance and MVDR Weights}{2}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:mvdr}{{3.2}{2}{Spatial Covariance and MVDR Weights}{subsection.3.2}{}}
+\newlabel{eq:cov}{{3}{2}{Spatial Covariance and MVDR Weights}{equation.3.3}{}}
+\newlabel{eq:diag_load}{{4}{2}{Spatial Covariance and MVDR Weights}{equation.3.4}{}}
+\newlabel{eq:mvdr}{{5}{2}{Spatial Covariance and MVDR Weights}{equation.3.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Zelinski Post-Filter}{2}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:pf}{{3.3}{2}{Zelinski Post-Filter}{subsection.3.3}{}}
+\newlabel{eq:zelinski}{{6}{2}{Zelinski Post-Filter}{equation.3.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.}DeepFilterNet-Light V2}{2}{section.4}\protected@file@percent }
+\newlabel{sec:dnn}{{4.}{2}{DeepFilterNet-Light V2}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Architecture Overview}{2}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:dnn_arch}{{4.1}{2}{Architecture Overview}{subsection.4.1}{}}
+\citation{leroux2019sdr}
+\citation{loshchilov2019adamw}
+\citation{allen1979ism}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces DeepFilterNet-Light V2 architecture. Total: $<1$M parameters.}}{3}{table.1}\protected@file@percent }
+\newlabel{tab:arch}{{1}{3}{DeepFilterNet-Light V2 architecture. Total: $<1$M parameters}{table.1}{}}
+\newlabel{eq:deep_filter}{{9}{3}{Architecture Overview}{equation.4.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Loss Function and Training}{3}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:training}{{4.2}{3}{Loss Function and Training}{subsection.4.2}{}}
+\newlabel{eq:sisdr}{{10}{3}{Loss Function and Training}{equation.4.10}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5.}Room Simulation and Dataset Generation}{3}{section.5}\protected@file@percent }
+\newlabel{sec:data}{{5.}{3}{Room Simulation and Dataset Generation}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Image Source Method}{3}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:ism}{{5.1}{3}{Image Source Method}{subsection.5.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Scenario Configuration}{3}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:scenario}{{5.2}{3}{Scenario Configuration}{subsection.5.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Delay Compensation}{3}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:delay}{{5.3}{3}{Delay Compensation}{subsection.5.3}{}}
+\citation{leroux2019sdr}
+\citation{rix2001pesq}
+\citation{taal2011stoi}
+\citation{chinen2020visqol}
+\citation{heymann2016neural,erdogan2016improved}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Beamforming-stage metrics (mean over verification subset).}}{4}{table.2}\protected@file@percent }
+\newlabel{tab:bf_results}{{2}{4}{Beamforming-stage metrics (mean over verification subset)}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Scale of Generation}{4}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:scale}{{5.4}{4}{Scale of Generation}{subsection.5.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6.}Experimental Setup}{4}{section.6}\protected@file@percent }
+\newlabel{sec:experiments}{{6.}{4}{Experimental Setup}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}STFT Configuration}{4}{subsection.6.1}\protected@file@percent }
+\newlabel{sec:stft}{{6.1}{4}{STFT Configuration}{subsection.6.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Evaluation Metrics}{4}{subsection.6.2}\protected@file@percent }
+\newlabel{sec:metrics}{{6.2}{4}{Evaluation Metrics}{subsection.6.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Beamforming Baseline}{4}{subsection.6.3}\protected@file@percent }
+\newlabel{sec:bf_results}{{6.3}{4}{Beamforming Baseline}{subsection.6.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7.}Real-Time Latency Analysis}{4}{section.7}\protected@file@percent }
+\newlabel{sec:latency}{{7.}{4}{Real-Time Latency Analysis}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}MVDR Latency}{4}{subsection.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}DNN Latency}{4}{subsection.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Combined Pipeline}{4}{subsection.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8.}Discussion and Phase 3 Directions}{4}{section.8}\protected@file@percent }
+\newlabel{sec:phase3}{{8.}{4}{Discussion and Phase 3 Directions}{section.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Current Limitations}{4}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Phase 3 Enhancements}{4}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9.}Conclusion}{4}{section.9}\protected@file@percent }
+\newlabel{sec:conclusion}{{9.}{4}{Conclusion}{section.9}{}}
+\bibstyle{IEEEbib}
+\bibdata{refs}
+\bibcite{allen1979ism}{1}
+\bibcite{capon1969mvdr}{2}
+\bibcite{chinen2020visqol}{3}
+\bibcite{erdogan2016improved}{4}
+\bibcite{heymann2016neural}{5}
+\bibcite{spcup2026}{6}
+\bibcite{leroux2019sdr}{7}
+\bibcite{loshchilov2019adamw}{8}
+\bibcite{rix2001pesq}{9}
+\bibcite{schroeder2020deepfilternet}{10}
+\bibcite{schroeder2023deepfilternet2}{11}
+\bibcite{simmer2001postfilter}{12}
+\bibcite{taal2011stoi}{13}
+\bibcite{zelinski1988postfilter}{14}
+\@writefile{toc}{\contentsline {section}{\numberline {10.}References}{5}{section.10}\protected@file@percent }
+\gdef \@abspage@last{5}
