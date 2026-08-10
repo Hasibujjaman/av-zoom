@@ -66,12 +66,12 @@ for i = 1:NUM_SAMPLES
     end
 
     if i <= 3
-        theta_speech = 0;                        % front
-        theta_noise  = 40 * sign(randn);         % +40° or -40°
+        theta_speech = 90;                       % broadside (MATLAB convention)
+        theta_noise  = 90 - 40 * sign(randn);   % ±40° off broadside
     else
-        theta_speech = -90 + 180*rand;
-        theta_noise  = theta_speech + 30 + 60*rand;
-        theta_noise  = max(min(theta_noise, 90), -90);
+        theta_speech = 180*rand;                 % 0°–180° azimuth
+        theta_noise  = theta_speech - 30 - 60*rand;
+        theta_noise  = max(min(theta_noise, 180), 0);
     end
 
     %% =====================================================

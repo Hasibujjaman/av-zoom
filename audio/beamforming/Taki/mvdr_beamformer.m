@@ -1,4 +1,5 @@
-function Y = mvdr_beamformer(X, fs, theta_deg, mic_pos)
+function Y = mvdr_beamformer(X, fs, azimuth_deg, mic_pos)
+% azimuth_deg: MATLAB convention (0°=endfire, 90°=broadside)
 
     M = size(X,2);
 
@@ -29,7 +30,7 @@ function Y = mvdr_beamformer(X, fs, theta_deg, mic_pos)
 
             R = Rxx(:,:,f) + eps * eye(M);
 
-            a = steering_vector(freqs(f), mic_pos, theta_deg);
+            a = steering_vector(freqs(f), mic_pos, azimuth_deg);
 
             w = (R \ a) / (a' * (R \ a));
 

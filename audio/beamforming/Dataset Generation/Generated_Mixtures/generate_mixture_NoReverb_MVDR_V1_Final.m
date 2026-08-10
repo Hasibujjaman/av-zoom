@@ -545,7 +545,7 @@ for i = 1:min(n_to_process, length(male_files))
     interf_sig_E = female_sig + music_scaled + noise_scaled;
     
     [mixture_E, target_mc_E, interf_mc_E, noise_mc_E] = create_mixture_no_reverb(...
-        target_sig, interf_sig_B, theta_target_test, theta_noise, fs, SNR_target, c, d);
+        target_sig, interf_sig_E, theta_target_test, theta_noise, fs, SNR_target, c, d);
     
     [SIR_E, SNR_E, max_amp_E] = verify_mixture_conditions(...
         mixture_E, target_mc_E, interf_mc_E, noise_mc_E, fs);

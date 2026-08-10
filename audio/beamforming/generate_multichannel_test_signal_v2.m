@@ -7,8 +7,8 @@ function [x, fs_expected] = generate_multichannel_test_signal_v2(voicePath, nois
 %   Inputs:
 %       voicePath     - String path to clean voice wav file
 %       noisePath     - String path to noise wav file
-%       theta_voice   - DOA of voice (degrees)
-%       theta_noise   - DOA of noise (degrees)
+%       theta_voice   - DOA azimuth of voice (degrees, MATLAB convention: 90°=broadside)
+%       theta_noise   - DOA azimuth of noise (degrees, MATLAB convention: 90°=broadside)
 %       SNR_dB        - Desired SNR at the reference microphone
 %       outputFilename- (Optional) String path to save the output .wav file. 
 %                       If empty or omitted, no file is saved.
@@ -63,8 +63,8 @@ function [x, fs_expected] = generate_multichannel_test_signal_v2(voicePath, nois
     %% ================= DELAY COMPUTATION =================
     % Calculate time delays based on Far-Field assumption
     % 
-    tau_voice = micPos * sin(deg2rad(theta_voice)) / c;
-    tau_noise = micPos * sin(deg2rad(theta_noise)) / c;
+    tau_voice = micPos * cos(deg2rad(theta_voice)) / c;
+    tau_noise = micPos * cos(deg2rad(theta_noise)) / c;
 
     %% ================= MULTICHANNEL MIXTURE =================
     x = zeros(L, numMics);

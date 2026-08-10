@@ -13,6 +13,7 @@
 
 clear; clc; close all;
 
+
 %% ---------------- Config ----------------
 cfg = struct();
 
@@ -608,3 +609,11 @@ function m = db2mag(db)
     % Local fallback to avoid toolbox dependency.
     m = 10.^(db./20);
 end
+
+
+
+
+
+clean_folder = '/Users/emonchowdhury/Desktop/Phase 2/av_zoom/DATASET/prepared_dataset/test/clean';      % Folder with clean reference files
+mvdr_folder = '/Users/emonchowdhury/Desktop/Phase 2/av_zoom/DATASET/prepared_dataset/test/noisy'; % Folder with MVDR output files
+model_folder = '/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/models/custom_model_1/model_v2_batch_output'; % Folder with model output files

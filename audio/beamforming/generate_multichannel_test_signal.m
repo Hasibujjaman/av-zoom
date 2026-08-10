@@ -4,8 +4,8 @@ clc; clear; close all;
 voicePath = '/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/beamforming/Test_audio/male_clean_15s.wav';   % <-- change later
 noisePath = '/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/beamforming/Test_audio/female_piano_14s.wav';   % <-- change later
 
-theta_voice = 0;    % speaker DOA (deg)
-theta_noise = 40;   % noise DOA (deg)
+theta_voice = 90;   % speaker DOA azimuth (MATLAB convention: 90°=broadside)
+theta_noise = 50;   % noise DOA azimuth (MATLAB convention)
 SNR_dB = 0;          % desired SNR at reference mic
 
 fs_expected = 16000;
@@ -39,8 +39,8 @@ noise = noise / rms(noise);
 noise = noise * 10^(-SNR_dB/20);
 
 %% ================= DELAY COMPUTATION =================
-tau_voice = micPos * sin(deg2rad(theta_voice)) / c;
-tau_noise = micPos * sin(deg2rad(theta_noise)) / c;
+tau_voice = micPos * cos(deg2rad(theta_voice)) / c;
+tau_noise = micPos * cos(deg2rad(theta_noise)) / c;
 
 %% ================= MULTICHANNEL MIXTURE =================
 x = zeros(L, numMics);

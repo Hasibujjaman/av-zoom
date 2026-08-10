@@ -1,9 +1,10 @@
-function X = simulate_multichannel(noisy, fs, mic_pos, theta_deg)
+function X = simulate_multichannel(noisy, fs, mic_pos, azimuth_deg)
+% azimuth_deg: MATLAB convention (0°=endfire, 90°=broadside)
 
     c = 343;
-    theta = deg2rad(theta_deg);
+    az = deg2rad(azimuth_deg);
 
-    delays = mic_pos * sin(theta) / c;
+    delays = mic_pos * cos(az) / c;
     M = length(mic_pos);
 
     X = zeros(length(noisy), M);

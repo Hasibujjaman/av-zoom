@@ -8,10 +8,10 @@ addpath('/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/beamforming/Test_aud
 addpath('/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/beamforming/Dataset Generation');
 %% ================= CONFIG =================
 fs = 16000;
-theta_target = 0;
-theta_noise  = 40;
+theta_target = 90;     % broadside (MATLAB convention)
+theta_noise  = 40;     % 40° off broadside → 50° azimuth
 
-theta_target_test = 0;  
+theta_target_test = 90;  % ← MUST match theta_target (steer at the target!)
 
 SNR_dB       = 5;  %5 dB
 
@@ -21,8 +21,8 @@ d = 0.08; % 8 cm
 mic_pos = [-d/2; d/2];
 
 
-clean_path = 'male_clean_15s.wav';
-% clean_path = '/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/beamforming/Dataset Generation/Male_clean/1000_part1.flac';
+clean_path = '/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/beamforming/Test_output/reverb_demo/1_clean_dry.wav';
+% clean_path = '/Users/emonchowdhury/Desktop/Phase 2/av_zoom/DATASET/prepared_dataset/test/clean/1_part3_A_female_only.wav';
 noise_path = 'female_piano_14s.wav';
 
 %% ================= LOAD SIGNALS =================
@@ -39,7 +39,7 @@ v_noise = v_noise(1:L);
         theta_target, theta_noise, fs, ...
         SNR_dB, c, d);
 %% ******
-% x = audioread('/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/beamforming/Dataset Generation/stereo_output.wav');
+x = audioread('/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/beamforming/Test_output/reverb_demo/3_mixture_stereo.wav');
 %% *******
 x = x(1:L,:);
 x_mono = x(:,1);
@@ -55,11 +55,27 @@ snr_check = 10*log10( ...
 fprintf('\n\nSIR = %.2f dB\n', sir_check);
 fprintf('SNR = %.2f dB\n', snr_check);
 
+% -------- Convention sanity check --------
+tau_target = mic_pos * cos(deg2rad(theta_target)) / c;
+tau_noise  = mic_pos * cos(deg2rad(theta_noise))  / c;
+tau_steer  = mic_pos * cos(deg2rad(theta_target_test)) / c;
+fprintf('\n--- Convention Check ---\n');
+fprintf('Target  delays (s): [%.6e, %.6e]  (should be ~0 for broadside)\n', tau_target(1), tau_target(2));
+fprintf('Noise   delays (s): [%.6e, %.6e]  (should be non-zero)\n', tau_noise(1), tau_noise(2));
+fprintf('Steer   delays (s): [%.6e, %.6e]  (must match target delays)\n', tau_steer(1), tau_steer(2));
+fprintf('Inter-mic delay diff target: %.2e s\n', diff(tau_target));
+fprintf('Inter-mic delay diff noise:  %.2e s\n', diff(tau_noise));
+
+% -------- Check multichannel signal correlation --------
+corr_ch = corrcoef(target_mc(:,1), target_mc(:,2));
+fprintf('Target ch1-ch2 corr: %.4f  (should be ~1.0 for broadside)\n', corr_ch(1,2));
+corr_ch_n = corrcoef(interf_mc(:,1), interf_mc(:,2));
+fprintf('Interf ch1-ch2 corr: %.4f  (should be < 1.0)\n\n', corr_ch_n(1,2));
 
 
-%% ================= YOUR MVDR (UNCHANGED) =================
+%% ================= YOUR MVDR =================
 % -------- STFT params --------
-N = 256;
+N = 512;
 hop = 128;
 nfft = 512;
 window = sqrt(hann(N,'periodic'));
@@ -70,30 +86,44 @@ X = stft_multichannel(x, window, hop, nfft);
 
 freqs = (0:numFreqs-1)' * fs / nfft;
 
-% -------- Covariance --------
-Rxx = init_covariance(numFreqs, numMics);
-alpha = 0.99;
-
+% -------- Batch sample covariance (uniform weighting) --------
+% Better than EMA for offline: every frame contributes equally.
+Rxx = zeros(numMics, numMics, numFreqs);
 for n = 1:numFrames
-    X_frame = squeeze(X(:,n,:));   % [freq x mic]
-    Rxx = update_covariance(Rxx, X_frame, alpha);
+    X_frame = squeeze(X(:,n,:));          % [numFreqs x numMics]
+    for k = 1:numFreqs
+        xk = X_frame(k,:).';             % [numMics x 1]
+        Rxx(:,:,k) = Rxx(:,:,k) + (xk * xk');
+    end
 end
+Rxx = Rxx / numFrames;
 
 % -------- Steering vector --------
 dvec = compute_steering_vector(theta_target_test, freqs, mic_pos, c);
 
 % -------- MVDR weights --------
-delta = 1e-6;
+% Delta sweep showed 1e-6 to 1e-2 are equivalent (2.01 dB).
+% Use 1e-3 as safe default; larger values push toward delay-and-sum.
+delta = 1e-3;
 W = compute_mvdr_weights(Rxx, dvec, delta);
 
 % -------- Apply MVDR --------
 Y = apply_mvdr(X, W);
 
+% -------- MVDR + Wiener Post-Filter --------
+Y_pf = mvdr_postfilter(X, W, dvec);
+
 % -------- ISTFT --------
 y_mvdr = istft_single_channel(Y, window, hop, nfft, L);
+y_mvdr_pf = istft_single_channel(Y_pf, window, hop, nfft, L);
 
 % Crop to original signal length
 y_mvdr_yours = real(y_mvdr(1:L));
+y_mvdr_postfilt = real(y_mvdr_pf(1:L));
+
+sisdr_pf = si_sdr(y_mvdr_postfilt, s_clean(1:L));
+fprintf('\n  MVDR only:         SI-SDR = %.2f dB\n', si_sdr(y_mvdr_yours, s_clean(1:L)));
+fprintf('  MVDR + post-filter: SI-SDR = %.2f dB\n\n', sisdr_pf);
 
 
 %% ================= TAKI MVDR =================
@@ -131,7 +161,7 @@ y_mvdr_matlab = y_mvdr_matlab(1:L);
 
 
 %% ================= ML Post Enchancement =================
-[y_model, ~] = audioread("/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/models/DTLN-master/test_output/COMPARE_V4_mvdr_emon_output.wav");
+[y_model, ~] = audioread("/Users/emonchowdhury/Desktop/Phase 2/av_zoom/audio/models/custom_model_1/model_enhanced_output/v2_2/COMPARE_V4_mvdr_emon_output_enhanced.wav");
 
 % Energy match to MVDR output
 y_model = y_model / rms(y_model) * rms(x_mono);
@@ -187,12 +217,12 @@ res_yours = y1 - s;
 res_taki  = y2 - s;
 res_matlab = y3 - s;
 res_model = y4 - s;
-
-osinr_mic   = 10*log10( sum(s.^2) / (sum(res_mic.^2)   + 1e-12) );
-osinr_yours = 10*log10( sum(s.^2) / (sum(res_yours.^2) + 1e-12) );
-osinr_taki  = 10*log10( sum(s.^2) / (sum(res_taki.^2)  + 1e-12) );
-osinr_matlab = 10*log10( sum(s.^2) / (sum(res_matlab.^2) + 1e-12) );
-osinr_model = 10*log10( sum(s.^2) / (sum(res_model.^2) + 1e-12) );
+% 
+% osinr_mic   = 10*log10( sum(s.^2) / (sum(res_mic.^2)   + 1e-12) );
+% osinr_yours = 10*log10( sum(s.^2) / (sum(res_yours.^2) + 1e-12) );
+% osinr_taki  = 10*log10( sum(s.^2) / (sum(res_taki.^2)  + 1e-12) );
+% osinr_matlab = 10*log10( sum(s.^2) / (sum(res_matlab.^2) + 1e-12) );
+% osinr_model = 10*log10( sum(s.^2) / (sum(res_model.^2) + 1e-12) );
 
 % ================= ViSQOL =================
 [visqol_mic,ftable_mic,ttable_mic] = visqol(x0,s,fs,mode='speech', OutputMetric="MOS and NSIM");
@@ -243,9 +273,9 @@ fprintf('Model:   MOS = %.2f, NSIM = %.2f\n\n\n', visqol_model(1),visqol_model(2
 %% $$$$$$$$$$$$$ save outputs $$$$$$$$$$$$$$$$$$$$$$$
 audiowrite('../Test_output/COMPARE_V4_mvdr_mic1_output.wav', x0, fs);
 audiowrite('../Test_output/COMPARE_V4_mvdr_emon_output.wav', y_mvdr_yours, fs);
-audiowrite('../Test_output/COMPARE_V4_mvdr_taki_output.wav', y_mvdr_taki, fs);
-audiowrite('../Test_output/COMPARE_V4_mvdr_matlab_output.wav', real(y_mvdr_matlab), fs);
+% audiowrite('../Test_output/COMPARE_V4_mvdr_taki_output.wav', y_mvdr_taki, fs);
+% audiowrite('../Test_output/COMPARE_V4_mvdr_matlab_output.wav', real(y_mvdr_matlab), fs);
 audiowrite('../Test_output/COMPARE_V4_model_output.wav', y_model, fs);
 
-
+audiowrite('../Test_output/COMPARE_V4_mixture.wav', x, fs);
 
